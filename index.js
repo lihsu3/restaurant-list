@@ -1,6 +1,7 @@
 const express = require('express')
 const exphbs  = require('express-handlebars');
-const restaurantList = require('./restaurant.json')
+const restaurantObj = require('./restaurant.json')
+const restaurantList = restaurantObj.results
 const app = express()
 const port = 3000
 
@@ -10,12 +11,17 @@ app.set('view engine', 'handlebars');
 app.use(express.static('public'))
 
 app.get('/', (req, res) => {
-	const a = restaurantList.results
-	res.render('home', {rl: a})
+	res.render('home', {restaurants: restaurantList})
 })
 
 app.get('/restaurants/:id', (req, res) => {
-	res.render('show', {re: restaurantList.results[req.params.id - 1]})
+	res.render('show', {restaurant: restaurantList[req.params.id - 1]})
+})
+
+app.get('/search', (req, res) => {
+	const keyword = req.query.keyword.toLowerCase()
+	const searchResults = restaurantList.filter(restaurant => restaurant.name.toLowerCase().includes(keyword))
+	res.render('home', {restaurants: searchResults})
 })
 
 app.listen(port, () => console.log(`listening on port ${port}`))
